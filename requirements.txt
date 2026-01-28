@@ -1,2 +1,2 @@
-python-telegram-bot
-cryptography
+cryptography==42.0.0
+python-telegram-bot==20.7
