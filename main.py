@@ -17,6 +17,8 @@ import base64
 import os
 import hashlib
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from aiohttp import web
+import threading
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -364,38 +366,64 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.error(f"Update {update} caused error {context.error}")
 
 
-def run_bot():
+async def health_check(request):
+    """Health check endpoint для Koyeb"""
+    return web.Response(text="OK", status=200)
+
+
+async def start_health_server():
+    """Запуск HTTP сервера для health checks"""
+    app = web.Application()
+    app.router.add_get('/', health_check)
+    app.router.add_get('/health', health_check)
+    
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', 8000)
+    await site.start()
+    logger.info("Health check server started on port 8000")
+
+
+async def run_bot():
     """Запуск бота"""
-    while True:
-        try:
-            load_history()
-            
-            application = Application.builder().token(BOT_TOKEN).build()
-            
-            application.add_handler(CommandHandler("start", start))
-            application.add_handler(CommandHandler("help", help_command))
-            application.add_handler(CommandHandler("stats", stats_command))
-            application.add_handler(CommandHandler("history", history_command))
-            application.add_handler(CommandHandler("secretkey", secretkey_command))
-            application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-            
-            application.add_error_handler(error_handler)
-            
-            logger.info("🚀 XpertVPN Crypto Bot v2 (AES) started!")
-            logger.info(f"👑 Admin ID: {ADMIN_ID}")
-            logger.info(f"🔐 Encryption: AES-256-GCM")
-            
-            application.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
-            
-        except KeyboardInterrupt:
-            logger.info("Bot stopped by user")
-            break
-        except Exception as e:
-            logger.error(f"Bot crashed: {e}")
-            logger.info("Restarting bot in 5 seconds...")
-            import time
-            time.sleep(5)
+    try:
+        load_history()
+        
+        application = Application.builder().token(BOT_TOKEN).build()
+        
+        application.add_handler(CommandHandler("start", start))
+        application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(CommandHandler("stats", stats_command))
+        application.add_handler(CommandHandler("history", history_command))
+        application.add_handler(CommandHandler("secretkey", secretkey_command))
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        
+        application.add_error_handler(error_handler)
+        
+        logger.info("🚀 XpertVPN Crypto Bot v2 (AES) started!")
+        logger.info(f"👑 Admin ID: {ADMIN_ID}")
+        logger.info(f"🔐 Encryption: AES-256-GCM")
+        
+        await application.initialize()
+        await application.start()
+        await application.updater.start_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
+        
+        await asyncio.Event().wait()
+        
+    except Exception as e:
+        logger.error(f"Bot crashed: {e}")
+        raise
 
 
 if __name__ == '__main__':
-    run_bot()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    loop.create_task(start_health_server())
+    
+    try:
+        loop.run_until_complete(run_bot())
+    except KeyboardInterrupt:
+        logger.info("Bot stopped by user")
+    finally:
+        loop.close()
