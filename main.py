@@ -415,15 +415,16 @@ async def run_bot():
         raise
 
 
+async def main():
+    """Главная функция - запускает health server и бота параллельно"""
+    await asyncio.gather(
+        start_health_server(),
+        run_bot()
+    )
+
+
 if __name__ == '__main__':
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    
-    loop.create_task(start_health_server())
-    
     try:
-        loop.run_until_complete(run_bot())
+        asyncio.run(main())
     except KeyboardInterrupt:
         logger.info("Bot stopped by user")
-    finally:
-        loop.close()
