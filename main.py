@@ -138,25 +138,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     is_admin = user_id == ADMIN_ID
     
     welcome_message = f"""
-🚀 **XpertVPN Crypto Link Bot v2 (AES)**
+� **XpertVPN Secure Link Converter**
 
-Привет, {update.effective_user.first_name}!
+Добро пожаловать, {update.effective_user.first_name}
 
-Я конвертирую обычные подписочные ссылки в зашифрованные xpert:// ссылки.
+▫️ Отправьте ссылку для шифрования
+▫️ Получите защищенную xpert:// ссылку
+▫️ Используйте в приложении XpertVPN
 
-**Как использовать:**
-1. Отправь мне обычную ссылку (http:// или https://)
-2. Получи зашифрованную ссылку xpert://crypt2/...
-3. Используй её в приложении XpertVPN
-
-**Формат:** `xpert://crypt2/[encrypted_data]`
-
-🔐 Шифрование: AES-256-GCM
-📱 Дешифровка: локально в приложении
+�️ Шифрование: AES-256-GCM
 """
     
     if is_admin:
-        welcome_message += "\n\n👑 **Вы администратор!**\nДоступны дополнительные функции."
+        welcome_message += "\n\n━━━━━━━━━━━━━━━━━━\n👑 Режим администратора"
         keyboard = get_admin_keyboard()
     else:
         keyboard = get_user_keyboard()
@@ -173,32 +167,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /help"""
     help_text = """
-📖 **Помощь**
+📖 **Справка**
 
-**Основные команды:**
-/start - Начать работу с ботом
-/help - Показать эту справку
-/stats - Статистика (только для админа)
-/history - История ссылок (только для админа)
+**Команды:**
+/start - Главное меню
+/help - Справка
+/stats - Статистика (админ)
+/history - История (админ)
 
-**Как конвертировать ссылку:**
-Просто отправь мне обычную ссылку, например:
-`https://example.com/subscription/server1`
-
-Я верну тебе зашифрованную ссылку:
-`xpert://crypt2/...`
-
-**Поддерживаемые форматы:**
-- http://...
-- https://...
-- vless://...
-- vmess://...
-- ss://...
-- trojan://...
+**Использование:**
+Отправьте ссылку для шифрования
 
 **Безопасность:**
 Все ссылки шифруются AES-256-GCM.
-Дешифровка происходит локально в приложении XpertVPN.
+Только приложение XpertVPN может расшифровать их.
 """
     
     await update.message.reply_text(help_text, parse_mode='Markdown')
@@ -217,19 +199,20 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     last_link = links_history[-1] if links_history else None
     
     stats_text = f"""
-📊 **Статистика бота**
+📊 **Статистика**
 
+━━━━━━━━━━━━━━━━━━
 📝 Всего ссылок: {total_links}
-👥 Уникальных пользователей: {unique_users}
-🔐 Версия шифрования: AES-256-GCM (crypt2)
+👥 Пользователей: {unique_users}
+🔐 Версия: crypt2 (AES-256-GCM)
+━━━━━━━━━━━━━━━━━━
 """
     
     if last_link:
         stats_text += f"""
 🕐 Последняя ссылка:
-   • Время: {last_link['timestamp'][:19]}
-   • URL: {last_link['original_url'][:50]}...
-   • Пользователь: @{last_link.get('username', 'Unknown')}
+▫️ {last_link['timestamp'][:19]}
+▫️ @{last_link.get('username', 'Unknown')}
 """
     
     await update.message.reply_text(stats_text, parse_mode='Markdown')
@@ -249,16 +232,16 @@ async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     recent_links = links_history[-10:]
     
-    history_text = "📜 **Последние 10 ссылок:**\n\n"
+    history_text = "📜 **История ссылок**\n\n━━━━━━━━━━━━━━━━━━\n"
     
     for i, entry in enumerate(reversed(recent_links), 1):
         timestamp = entry['timestamp'][:19]
-        url = entry['original_url']
+        url = entry['original_url'][:40]
         username = entry.get('username', 'Unknown')
         
-        history_text += f"{i}. **{timestamp}**\n"
-        history_text += f"   URL: {url}\n"
-        history_text += f"   User: @{username}\n\n"
+        history_text += f"{i}. {timestamp}\n"
+        history_text += f"   @{username}\n"
+        history_text += f"   {url}...\n\n"
     
     await update.message.reply_text(history_text, parse_mode='Markdown')
 
@@ -274,17 +257,13 @@ async def secretkey_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     key_hex = crypto.get_key_hex()
     
     message = f"""
-🔑 **Секретный ключ AES-256**
+🔑 **Секретный ключ**
 
-Этот ключ используется для дешифрования xpert:// ссылок в приложении.
-
-**Ключ (HEX):**
+━━━━━━━━━━━━━━━━━━
 `{key_hex}`
+━━━━━━━━━━━━━━━━━━
 
-**Исходная строка ключа:**
-`{crypto.SECRET_KEY}`
-
-⚠️ Этот ключ должен быть встроен в Android приложение!
+⚠️ Для Android приложения
 """
     
     await update.message.reply_text(message, parse_mode='Markdown')
@@ -338,16 +317,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         add_to_history(text, crypto_link, user_id, username)
         
         response = f"""
-✅ **Ссылка зашифрована! (AES-256)**
+✅ **Ссылка зашифрована**
 
-**Оригинал:**
-`{text[:100]}{'...' if len(text) > 100 else ''}`
-
-**Зашифрованная ссылка:**
+━━━━━━━━━━━━━━━━━━
 `{crypto_link}`
+━━━━━━━━━━━━━━━━━━
 
-📱 Используй эту ссылку в приложении XpertVPN
-🔐 Дешифровка происходит локально
+🔐 Защищено AES-256-GCM
+📱 Используйте в XpertVPN
 """
         
         await update.message.reply_text(response, parse_mode='Markdown')

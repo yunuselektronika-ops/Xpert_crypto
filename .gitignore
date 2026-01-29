@@ -1,0 +1,5 @@
+server/
+*.pyc
+__pycache__/
+*.log
+links_history.json
