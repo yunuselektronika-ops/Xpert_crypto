@@ -138,9 +138,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     is_admin = user_id == ADMIN_ID
     
     welcome_message = f"""
-🚀 **XpertVPN Crypto Link Bot v2**
+� **XpertVPN Crypto Link Bot v2**
 
 Привет, {update.effective_user.first_name}!
+
+▫️ Отправьте ссылку для шифрования
+▫️ Получите защищенную xpert:// ссылку
+▫️ Используйте в приложении XpertVPN
 """
     
     if is_admin:
