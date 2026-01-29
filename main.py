@@ -138,7 +138,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     is_admin = user_id == ADMIN_ID
     
     welcome_message = f"""
-� **XpertVPN Crypto Link Bot v2**
+🔐 **XpertVPN Crypto Link Bot v2**
 
 Привет, {update.effective_user.first_name}!
 
@@ -175,10 +175,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 **Использование:**
 Отправьте ссылку для шифрования
-
-**Безопасность:**
-Все ссылки шифруются AES-256-GCM.
-Только приложение XpertVPN может расшифровать их.
 """
     
     await update.message.reply_text(help_text, parse_mode='Markdown')
