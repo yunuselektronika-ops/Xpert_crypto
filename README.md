@@ -22,7 +22,7 @@
 - `crypto_manager_aes.py` - AES-256-GCM шифрование
 - `telegram_bot_aes.py` - Telegram бот для шифрования ссылок
 
-### 2. Android Client (интегрировано в V2rayNG)
+### 2. Android Client (интегрировано в XpertVPN)
 - `XpertCryptoManager.kt` - Локальная AES-256-GCM дешифровка
 
 ## Формат ссылки
