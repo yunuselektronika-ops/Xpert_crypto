@@ -235,8 +235,7 @@ async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         username = entry.get('username', 'Unknown')
         
         history_text += f"{i}. {timestamp} - @{username}\n"
-        history_text += f"   📤 {original_url}\n"
-        history_text += f"   🔐 {crypto_link}\n\n"
+        history_text += f"   📤 {original_url}\n\n"
     
     await update.message.reply_text(history_text, parse_mode='Markdown')
 
