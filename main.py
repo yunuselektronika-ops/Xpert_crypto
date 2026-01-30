@@ -82,7 +82,7 @@ class XpertCryptoManagerAES:
         return self.key.hex()
 
 
-BOT_TOKEN = "8565862140:AAFz20cgXVmhZUsr_YsFVxEaMEw58jsZgRA"
+BOT_TOKEN = "8565862140:AAGeXlspsLvxGryCVbRYGZvTvuV6gbz5Srw"
 ADMIN_ID = 5372736703
 
 crypto = XpertCryptoManagerAES()
