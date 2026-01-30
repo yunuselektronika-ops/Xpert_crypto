@@ -333,6 +333,21 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 
+async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Обработчик кнопок клавиатуры"""
+    user_id = update.effective_user.id
+    text = update.message.text
+    
+    if text == "📊 Статистика":
+        await stats_command(update, context)
+    elif text == "📜 История ссылок":
+        await history_command(update, context)
+    elif text == "🔑 Секретный ключ":
+        await secretkey_command(update, context)
+    elif text == "ℹ️ Помощь":
+        await help_command(update, context)
+
+
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик ошибок"""
     logger.error(f"Update {update} caused error {context.error}")
@@ -369,6 +384,7 @@ async def run_bot():
         application.add_handler(CommandHandler("history", history_command))
         application.add_handler(CommandHandler("secretkey", secretkey_command))
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        application.add_handler(MessageHandler(filters.Regex(r'^(📊 Статистика|📜 История ссылок|🔑 Секретный ключ|ℹ️ Помощь)$'), handle_button))
         
         application.add_error_handler(error_handler)
         
