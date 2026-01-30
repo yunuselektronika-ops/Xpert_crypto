@@ -174,7 +174,7 @@ def get_admin_keyboard():
 def get_user_keyboard():
     """Клавиатура для обычного пользователя"""
     keyboard = [
-        [KeyboardButton("🔓 Без HWID"), KeyboardButton("🔐 С HWID")],
+        [KeyboardButton(" С HWID")],
         [KeyboardButton("📱 Мой HWID"), KeyboardButton("ℹ️ Помощь")]
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -220,8 +220,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 **Команды:**
 /start - Главное меню
 /help - Справка
-/stats - Статистика (админ)
-/history - История (админ)
 
 **Использование:**
 Отправьте ссылку для шифрования
