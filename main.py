@@ -18,7 +18,7 @@ import os
 import hashlib
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from aiohttp import web
-import threading
+import aiohttp
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -669,17 +669,32 @@ async def health_check(request):
     return web.Response(text="OK", status=200)
 
 
+async def status_check(request):
+    """Статус бота для мониторинга"""
+    status = {
+        "status": "running",
+        "bot": "XpertVPN Crypto Bot v2",
+        "encryption": "AES-256-GCM",
+        "version": "crypt2",
+        "links_processed": len(links_history),
+        "hwids_registered": len(user_hwids)
+    }
+    return web.json_response(status)
+
+
 async def start_health_server():
     """Запуск HTTP сервера для health checks"""
     app = web.Application()
     app.router.add_get('/', health_check)
     app.router.add_get('/health', health_check)
+    app.router.add_get('/status', status_check)
     
+    port = int(os.environ.get('PORT', 8000))
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, '0.0.0.0', 8000)
+    site = web.TCPSite(runner, '0.0.0.0', port)
     await site.start()
-    logger.info("Health check server started on port 8000")
+    logger.info(f"Health check server started on port {port}")
 
 
 async def run_bot():
@@ -717,11 +732,22 @@ async def run_bot():
         raise
 
 
+async def keep_alive():
+    """Периодический пинг для поддержания активности сервиса"""
+    while True:
+        try:
+            await asyncio.sleep(300)  # Каждые 5 минут
+            logger.info("🔄 Keep-alive ping - bot is running")
+        except Exception as e:
+            logger.error(f"Keep-alive error: {e}")
+
+
 async def main():
     """Главная функция - запускает health server и бота параллельно"""
     await asyncio.gather(
         start_health_server(),
-        run_bot()
+        run_bot(),
+        keep_alive()
     )
 
 
