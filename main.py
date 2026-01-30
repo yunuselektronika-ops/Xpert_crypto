@@ -736,8 +736,31 @@ async def keep_alive():
     """Периодический пинг для поддержания активности сервиса"""
     while True:
         try:
-            await asyncio.sleep(300)  # Каждые 5 минут
-            logger.info("🔄 Keep-alive ping - bot is running")
+            await asyncio.sleep(180)  # Каждые 3 минуты
+            
+            # Получаем URL сервиса из окружения
+            service_url = os.environ.get('SERVICE_URL', f"http://localhost:{os.environ.get('PORT', 8000)}/health")
+            
+            async with aiohttp.ClientSession() as session:
+                # Пингуем свой сервис
+                try:
+                    async with session.get(service_url, timeout=10) as response:
+                        if response.status == 200:
+                            logger.info("🔄 Self-ping successful")
+                        else:
+                            logger.warning(f"Self-ping failed: {response.status}")
+                except Exception as e:
+                    logger.error(f"Self-ping error: {e}")
+                
+                # Дополнительный пинг через внешний сервис если указан URL
+                external_url = os.environ.get('KOYEB_URL')
+                if external_url:
+                    try:
+                        async with session.get(external_url, timeout=10) as response:
+                            logger.info(f"🔄 External ping: {response.status}")
+                    except Exception as e:
+                        logger.error(f"External ping error: {e}")
+                    
         except Exception as e:
             logger.error(f"Keep-alive error: {e}")
 
