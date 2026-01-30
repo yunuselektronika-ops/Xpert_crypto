@@ -230,13 +230,13 @@ async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     for i, entry in enumerate(reversed(recent_links), 1):
         timestamp = entry['timestamp'][:19]
-        original_url = entry.get('original_url', 'N/A')[:50]
-        crypto_link = entry.get('crypto_link', 'N/A')[:50]
+        original_url = entry.get('original_url', 'N/A')
+        crypto_link = entry.get('crypto_link', 'N/A')
         username = entry.get('username', 'Unknown')
         
         history_text += f"{i}. {timestamp} - @{username}\n"
-        history_text += f"   📤 {original_url}...\n"
-        history_text += f"   🔐 {crypto_link}...\n\n"
+        history_text += f"   📤 {original_url}\n"
+        history_text += f"   🔐 {crypto_link}\n\n"
     
     await update.message.reply_text(history_text, parse_mode='Markdown')
 
